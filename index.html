@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+	<title>Auto-documenting OSGi CommandProviders :  Bitwise Evolution</title>
+	
+<!--[if gte IE 7]><!-->
+  <link rel="stylesheet" href="http://blog.ciscavate.org/wp-content/themes/manifest/style.css" type="text/css" media="screen" charset="utf-8" />
+<!-- <![endif]-->
+
+<!--[if IE 7]>
+  <link rel="stylesheet" href="http://blog.ciscavate.org/wp-content/themes/manifest/style_ie.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+<!--[if IE 6]>
+<link rel="stylesheet" type="text/css" media="screen" href="http://blog.ciscavate.org/wp-content/themes/manifest/styles_ie6.css" />
+<![endif]-->
+
+  <link rel="alternate" type="application/rss+xml" title="Bitwise Evolution RSS Feed" href="http://blog.ciscavate.org/feed" />
+  <link rel="alternate" type="application/atom+xml" title="Bitwise Evolution Atom Feed" href="http://blog.ciscavate.org/feed/atom" />
+  <link rel="pingback" href="http://blog.ciscavate.org/xmlrpc.php" />
+  <link rel="stylesheet" href="http://blog.ciscavate.org/wp-content/plugins/codecolorer/codecolorer.css" type="text/css" />
+<style type="text/css">
+.codecolorer-container  {border: 1px solid #ccc; background: #eee; padding: 5px; margin: 10px;}
+</style>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://blog.ciscavate.org/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://blog.ciscavate.org/wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='Bitwise Evolution' href='http://blog.ciscavate.org' />
+<link rel='start' title='Distributed Communication' href='http://blog.ciscavate.org/2005/08/distributed-communication.html' />
+<link rel='prev' title='It&#8217;s called a docking station, Joel :)' href='http://blog.ciscavate.org/2008/09/its-called-a-docking-station-joel.html' />
+<link rel='next' title='Treat your mailing lists like reference documents, please.' href='http://blog.ciscavate.org/2008/11/treat-your-mailing-lists-like-reference-documents-please.html' />
+<meta name="generator" content="WordPress 3.0.3" />
+<link rel='canonical' href='http://blog.ciscavate.org/2008/10/auto-documenting-osgi-commandproviders.html' />
+<link rel='shortlink' href='http://blog.ciscavate.org/?p=48' />
+</head>
+
+<body>
+
+
+<div id="siteWrapper">
+
+  <h1 class="vcard author"><a href="http://blog.ciscavate.org/" title="Home" class="fn">Bitwise Evolution</a></h1> 
+
+  <div id="mainNav">
+    <ul>
+      <li class="page_item page-item-2"><a href="http://blog.ciscavate.org/about" title="About">About</a></li>
+    </ul>
+  </div>
+  
+  <div id="siteDescription">
+    Musings of a Portland-area hacker with a bent on improving digital lifestyles.  </div>
+
+<div id="coreContent">
+
+	
+
+      <div class="post single hentry">
+        <div class="postContent">
+          <h3 class="entry-title">Auto-documenting OSGi CommandProviders</h3>
+          <h4 class="vcard author">by <span class="fn">rcreswick</span></h4>
+          <div class="entry-content">
+              <p>(<strong>Edit:</strong> If you&#8217;re reading this after OSGi R4.2, then there is almost certainly a better way to accomplish the same thing)</p>
+
+<p>I&#8217;ve been digging into OSGi a bit over the last week or so inorder to
+create some Eclipse plugins that will automatically discover
+eachother, and I&#8217;ve been generally impressed with the framework on the
+whole.  The documentation is a bit lacking, but there are some good
+blog posts about it.  (Specifically [Neil Bartlett's introduction to
+OSGi][intro].)</p>
+
+<p>One thing that bugged me is the repetition needed when you implement
+the CommandProvider interface to add commands to the OSGi console.
+CommandProvider defines one method you must supply:</p>
+
+<div class="codecolorer-container java" style="height:35px;"><div class="codecolorer" style="font-family: monospace;"><span class="kw2">public</span> <a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AString+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">String</span></a> getHelp<span class="br0">&#40;</span><span class="br0">&#41;</span></div></div>
+
+<p>OSGi then uses reflection to extract each of the methods that starts
+with an underscore, and supplies those methods to the command environment as
+new commands.  (The underscore is trimmed, and the name of the method becomes
+the command name.)  General practice is to include the name of the
+method in the return value of <code>getHelp()</code>, along with a description of
+what the method does, eg:</p>
+
+<div class="codecolorer-container java"><div class="codecolorer" style="font-family: monospace;"><span class="kw2">public</span> <span class="kw2">class</span> SampleCommandProvider <span class="kw2">implements</span> CommandProvider <span class="br0">&#123;</span><br />
+<br />
+&nbsp; &nbsp;<span class="kw2">public</span> <span class="kw2">synchronized</span> <span class="kw4">void</span> _run<span class="br0">&#40;</span>CommandInterpreter ci<span class="br0">&#41;</span> <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="co1">// do stuff.</span><br />
+&nbsp; &nbsp;<span class="br0">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <br />
+&nbsp; &nbsp;<span class="kw2">public</span> <a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AString+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">String</span></a> getHelp<span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="kw2">return</span> <span class="st0">&quot;<span class="es0">\t</span>run - execute a Runnable service&quot;</span>;<br />
+&nbsp; &nbsp;<span class="br0">&#125;</span><br />
+<span class="br0">&#125;</span></div></div>
+
+<p>This seems like a pain to maintain, so I took a quick look at
+annotations, and propose a new syntax:</p>
+
+<div class="codecolorer-container java"><div class="codecolorer" style="font-family: monospace;"><span class="kw2">public</span> <span class="kw2">class</span> SampleCommandProvider <span class="kw2">extends</span><br />
+&nbsp; &nbsp;DescriptiveCommandProvider <span class="br0">&#123;</span><br />
+<br />
+&nbsp; &nbsp;@CmdDescr<span class="br0">&#40;</span>description=<span class="st0">&quot;execute a Runnable service&quot;</span><span class="br0">&#41;</span><br />
+&nbsp; &nbsp;<span class="kw2">public</span> <span class="kw2">synchronized</span> <span class="kw4">void</span> _run<span class="br0">&#40;</span>CommandInterpreter ci<span class="br0">&#41;</span> <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="co1">// do stuff.</span><br />
+&nbsp; &nbsp;<span class="br0">&#125;</span><br />
+<span class="br0">&#125;</span></div></div>
+
+<p>Here we&#8217;ve extracted the <code>getHelp()</code> method into a new superclass, so
+our SampleCommandProvider now extends an abstract class instead of
+implementing an interface.  It also makes use of an Annotation, which
+we need to define:</p>
+
+<div class="codecolorer-container java"><div class="codecolorer" style="font-family: monospace;"><span class="co2">import java.lang.annotation.ElementType;</span><br />
+<span class="co2">import java.lang.annotation.Retention;</span><br />
+<span class="co2">import java.lang.annotation.RetentionPolicy;</span><br />
+<span class="co2">import java.lang.annotation.Target;</span><br />
+&nbsp; &nbsp; <br />
+@Retention<span class="br0">&#40;</span>RetentionPolicy.<span class="me1">RUNTIME</span><span class="br0">&#41;</span><br />
+@Target<span class="br0">&#40;</span>ElementType.<span class="me1">METHOD</span><span class="br0">&#41;</span><br />
+<span class="kw2">public</span> @<span class="kw2">interface</span> CmdDescr <span class="br0">&#123;</span><br />
+&nbsp; &nbsp;<a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AString+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">String</span></a> description<span class="br0">&#40;</span><span class="br0">&#41;</span>;<br />
+<span class="br0">&#125;</span></div></div>
+
+<p>Finally, we just need to define the superclass that implements
+<code>getHelp()</code>:</p>
+
+<div class="codecolorer-container java" style="height:280px;"><div class="codecolorer" style="font-family: monospace;"><span class="co2">import java.lang.reflect.Method;</span><br />
+<span class="co2">import java.util.regex.Matcher;</span><br />
+<span class="co2">import java.util.regex.Pattern;</span><br />
+<br />
+<span class="co2">import org.eclipse.osgi.framework.console.CommandProvider;</span><br />
+<br />
+<span class="kw2">public</span> <span class="kw2">abstract</span> <span class="kw2">class</span> DescriptiveCommandProvider <span class="kw2">implements</span> CommandProvider <span class="br0">&#123;</span><br />
+&nbsp; &nbsp;<br />
+&nbsp; &nbsp;<span class="kw2">private</span> <span class="kw2">static</span> <span class="kw2">final</span> Pattern CMD_PATTERN = Pattern.<span class="me1">compile</span><span class="br0">&#40;</span><span class="st0">&quot;^_(.*)&quot;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp;<span class="kw2">private</span> <a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AString+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">String</span></a> help = <span class="kw2">null</span>;<br />
+&nbsp; &nbsp;<br />
+&nbsp; &nbsp;<span class="kw2">public</span> <a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AString+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">String</span></a> getHelp<span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="kw1">if</span> <span class="br0">&#40;</span><span class="kw2">null</span> == help<span class="br0">&#41;</span><span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;help = buildHelp<span class="br0">&#40;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp; &nbsp; <span class="br0">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="kw2">return</span> help;<br />
+&nbsp; &nbsp;<span class="br0">&#125;</span><br />
+<br />
+&nbsp; &nbsp;<span class="kw2">private</span> <a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AString+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">String</span></a> buildHelp<span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; StringBuilder helpBuff = <span class="kw2">new</span> StringBuilder<span class="br0">&#40;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp; &nbsp; <br />
+&nbsp; &nbsp; &nbsp; <span class="kw1">for</span> <span class="br0">&#40;</span><a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AMethod+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">Method</span></a> m : <span class="kw2">this</span>.<span class="me1">getClass</span><span class="br0">&#40;</span><span class="br0">&#41;</span>.<span class="me1">getMethods</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span><span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="kw1">if</span> <span class="br0">&#40;</span>methodIsCmd<span class="br0">&#40;</span>m<span class="br0">&#41;</span><span class="br0">&#41;</span><span class="br0">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span> <span class="br0">&#40;</span><span class="nu0">0</span> != helpBuff.<span class="me1">length</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span><span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;helpBuff.<span class="me1">append</span><span class="br0">&#40;</span><span class="st0">&quot;<span class="es0">\n</span>&quot;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; helpBuff.<span class="me1">append</span><span class="br0">&#40;</span>getDocumentation<span class="br0">&#40;</span>m<span class="br0">&#41;</span><span class="br0">&#41;</span>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="br0">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="br0">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="kw2">return</span> helpBuff.<span class="me1">toString</span><span class="br0">&#40;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp;<span class="br0">&#125;</span><br />
+<br />
+&nbsp; &nbsp;<span class="kw2">private</span> <span class="kw4">boolean</span> methodIsCmd<span class="br0">&#40;</span><a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AMethod+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">Method</span></a> m<span class="br0">&#41;</span> <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="kw2">return</span> CMD_PATTERN.<span class="me1">matcher</span><span class="br0">&#40;</span>m.<span class="me1">getName</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span>.<span class="me1">matches</span><span class="br0">&#40;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp;<span class="br0">&#125;</span><br />
+<br />
+&nbsp; &nbsp;<span class="kw2">private</span> <a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AString+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">String</span></a> getDocumentation<span class="br0">&#40;</span><a href="http://www.google.com/search?hl=en&amp;q=allinurl%3AMethod+java.sun.com&amp;bntI=I%27m%20Feeling%20Lucky"><span class="kw3">Method</span></a> m<span class="br0">&#41;</span> <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; StringBuilder methodHelp = <span class="kw2">new</span> StringBuilder<span class="br0">&#40;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp; &nbsp; <br />
+&nbsp; &nbsp; &nbsp; Matcher matcher = CMD_PATTERN.<span class="me1">matcher</span><span class="br0">&#40;</span>m.<span class="me1">getName</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>matcher.<span class="me1">matches</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span><span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;methodHelp.<span class="me1">append</span><span class="br0">&#40;</span><span class="st0">&quot;<span class="es0">\t</span>&quot;</span>+matcher.<span class="me1">group</span><span class="br0">&#40;</span><span class="nu0">1</span><span class="br0">&#41;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;CmdDescr description = m.<span class="me1">getAnnotation</span><span class="br0">&#40;</span>CmdDescr.<span class="kw2">class</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="kw1">if</span> <span class="br0">&#40;</span><span class="kw2">null</span> != description<span class="br0">&#41;</span><span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; methodHelp.<span class="me1">append</span><span class="br0">&#40;</span><span class="st0">&quot; - &quot;</span>+description.<span class="me1">description</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="br0">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="br0">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="kw2">return</span> methodHelp.<span class="me1">toString</span><span class="br0">&#40;</span><span class="br0">&#41;</span>;<br />
+&nbsp; &nbsp;<span class="br0">&#125;</span><br />
+<span class="br0">&#125;</span></div></div>
+
+<p>Note that the actual reflection on the class only happens once &#8212; all
+subsequent calls to <code>getHelp()</code> use a cached copy of the documentation.</p>
+
+<p>[intro]: http://neilbartlett.name/blog/osgi-articles/<u style=display:none></u></p>
+          </div>
+        </div>
+        <div class="postMeta">
+                  
+          <div class="postDate"><span>Published:</span> <abbr class="published" title="2008-10-21T05:08:54+0000"><a href="http://blog.ciscavate.org/2008/10/21">October 21, 2008</a></abbr></div>
+        	<div class="categories"><span>Filed Under:</span> <a href="http://blog.ciscavate.org/category/osgi" title="View all posts in OSGi" rel="category tag">OSGi</a>, <a href="http://blog.ciscavate.org/category/eclipse" title="View all posts in eclipse" rel="category tag">eclipse</a>, <a href="http://blog.ciscavate.org/category/java" title="View all posts in java" rel="category tag">java</a>, <a href="http://blog.ciscavate.org/category/tech" title="View all posts in tech" rel="category tag">tech</a></div>
+        	        </div>
+      </div>
+
+            
+	
+<!-- You can start editing here. -->
+<div id="comments">
+
+			<!-- If comments are closed. -->
+		<div class="nocomments">Comments are closed.</div>
+
+	
+
+  </div>
+
+  <div class="pageNav">
+    <div class="prev"><a href="http://blog.ciscavate.org/2008/09/its-called-a-docking-station-joel.html" rel="prev">&laquo; Previous Post</a></div>
+    <div class="next"><a href="http://blog.ciscavate.org/2008/11/treat-your-mailing-lists-like-reference-documents-please.html" rel="next">Next Post &raquo;</a></div>
+  </div>
+
+
+	
+</div>
+
+
+</div>
+
+<div id="footer">
+
+  <!-- Footer Links -->
+ <!-- 
+  <h5>Elsewhere</h5>
+  <ul class="elsewhere">
+    <li><a href="#">Facebook</a></li>
+    <li><a href="#">Flickr</a></li>
+    <li><a href="#">Last.fm</a></li>
+    <li><a href="#">Deli.icio.us</a></li>
+    <li><a href="#">Linkedin</a></li>
+    <li><a href="#">Twitter</a></li>
+    <li class="last"><a href="#">Vimeo</a></li>
+  </ul>
+-->
+  <!-- Search Field -->
+  
+  <div class="footerContent">
+    <form method="get" id="searchform" action="http://blog.ciscavate.org/">
+      <div id="search">
+        <input type="text" value="" name="s" id="s" />
+        <input type="submit" id="searchsubmit" value="Search" />
+      </div>
+    </form>
+    
+    
+    <p>&copy; Bitwise Evolution. Powered by <a href="http://wordpress.org/">WordPress</a> and <a href="http://jimbarraud.com/manifest/">Manifest</a></p>
+  </div>
+</div>
+
+
+</body>
+</html>
